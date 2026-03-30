@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>금융 보도자료 모니터</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f0f10;
+      --surface: #18181b;
+      --border: #2a2a2e;
+      --accent: #e8c547;
+      --accent2: #5b8dee;
+      --text: #e8e8e6;
+      --muted: #6b6b72;
+      --fsc: #5b8dee;
+      --fss: #e87c5b;
+      --bok: #5bcea8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Noto Serif KR', serif;
+      min-height: 100vh;
+    }
+
+    /* 헤더 */
+    header {
+      border-bottom: 1px solid var(--border);
+      padding: 28px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      background: rgba(15,15,16,0.95);
+      backdrop-filter: blur(12px);
+      z-index: 100;
+    }
+
+    .logo {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+    }
+
+    .logo h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--accent);
+    }
+
+    .logo span {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+    }
+
+    .header-stats {
+      display: flex;
+      gap: 24px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+    }
+
+    .stat-item { color: var(--muted); }
+    .stat-item strong { color: var(--accent); margin-right: 4px; }
+
+    /* 필터 바 */
+    .filter-bar {
+      padding: 20px 40px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .filter-group {
+      display: flex;
+      gap: 6px;
+    }
+
+    .badge-btn {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      padding: 6px 14px;
+      border-radius: 3px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.15s;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .badge-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .badge-btn.active { background: var(--accent); color: var(--bg); border-color: var(--accent); font-weight: 600; }
+    .badge-btn.fsc.active { background: var(--fsc); border-color: var(--fsc); }
+    .badge-btn.fss.active { background: var(--fss); border-color: var(--fss); }
+    .badge-btn.bok.active { background: var(--bok); border-color: var(--bok); }
+
+    .search-wrap {
+      flex: 1;
+      max-width: 320px;
+      position: relative;
+    }
+
+    .search-wrap input {
+      width: 100%;
+      padding: 7px 36px 7px 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      color: var(--text);
+      font-family: 'Noto Serif KR', serif;
+      font-size: 0.85rem;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .search-wrap input:focus { border-color: var(--accent); }
+    .search-wrap input::placeholder { color: var(--muted); }
+
+    .search-wrap button {
+      position: absolute;
+      right: 8px; top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    .collect-btn {
+      margin-left: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      padding: 7px 16px;
+      background: transparent;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      border-radius: 3px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .collect-btn:hover { background: var(--accent); color: var(--bg); }
+
+    /* 아티클 목록 */
+    main { padding: 0 40px 60px; }
+
+    .list-header {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      padding: 18px 0 12px;
+      border-bottom: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: 90px 1fr 110px;
+      gap: 16px;
+    }
+
+    .article-item {
+      display: grid;
+      grid-template-columns: 90px 1fr 110px;
+      gap: 16px;
+      align-items: center;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.1s;
+      animation: fadeIn 0.3s ease both;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .article-item:hover { background: rgba(255,255,255,0.02); margin: 0 -16px; padding: 16px; border-radius: 4px; }
+
+    .source-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.68rem;
+      font-weight: 500;
+      padding: 3px 8px;
+      border-radius: 2px;
+      display: inline-block;
+      letter-spacing: 0.03em;
+    }
+
+    .source-badge.금융위원회 { background: rgba(91,141,238,0.15); color: var(--fsc); border: 1px solid rgba(91,141,238,0.3); }
+    .source-badge.금융감독원 { background: rgba(232,124,91,0.15); color: var(--fss); border: 1px solid rgba(232,124,91,0.3); }
+    .source-badge.한국은행 { background: rgba(91,206,168,0.15); color: var(--bok); border: 1px solid rgba(91,206,168,0.3); }
+
+    .article-title a {
+      color: var(--text);
+      text-decoration: none;
+      font-size: 0.92rem;
+      line-height: 1.5;
+      display: block;
+      transition: color 0.15s;
+    }
+
+    .article-title a:hover { color: var(--accent); }
+
+    .article-date {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-align: right;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 80px 0;
+      color: var(--muted);
+    }
+
+    .empty-state p { font-size: 0.9rem; margin-top: 8px; }
+
+    /* 토스트 */
+    #toast {
+      position: fixed;
+      bottom: 30px; right: 30px;
+      background: var(--accent);
+      color: var(--bg);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      padding: 12px 20px;
+      border-radius: 4px;
+      display: none;
+      z-index: 999;
+      font-weight: 600;
+    }
+
+    @media (max-width: 700px) {
+      header, .filter-bar, main { padding-left: 20px; padding-right: 20px; }
+      .list-header, .article-item { grid-template-columns: 80px 1fr; }
+      .article-date { display: none; }
+      .header-stats { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <h1>📋 금융 보도자료</h1>
+    <span>MONITOR v1.0</span>
+  </div>
+  <div class="header-stats">
+    <div class="stat-item"><strong>{{ stats.total }}</strong>건 수집됨</div>
+    {% for src, cnt in stats.by_source.items() %}
+    <div class="stat-item"><strong>{{ cnt }}</strong>{{ src }}</div>
+    {% endfor %}
+  </div>
+</header>
+
+<div class="filter-bar">
+  <div class="filter-group">
+    <a href="/" class="badge-btn {% if not source %}active{% endif %}">전체</a>
+    <a href="/?source=금융위원회{% if keyword %}&keyword={{ keyword }}{% endif %}" class="badge-btn fsc {% if source=='금융위원회' %}active{% endif %}">금융위원회</a>
+    <a href="/?source=금융감독원{% if keyword %}&keyword={{ keyword }}{% endif %}" class="badge-btn fss {% if source=='금융감독원' %}active{% endif %}">금융감독원</a>
+    <a href="/?source=한국은행{% if keyword %}&keyword={{ keyword }}{% endif %}" class="badge-btn bok {% if source=='한국은행' %}active{% endif %}">한국은행</a>
+  </div>
+
+  <form class="search-wrap" method="get" action="/">
+    {% if source %}<input type="hidden" name="source" value="{{ source }}">{% endif %}
+    <input type="text" name="keyword" placeholder="키워드 검색..." value="{{ keyword }}">
+    <button type="submit">🔍</button>
+  </form>
+
+  <button class="collect-btn" onclick="manualCollect()">⟳ 즉시 수집</button>
+</div>
+
+<main>
+  {% if articles %}
+  <div class="list-header">
+    <span>기관</span>
+    <span>제목</span>
+    <span style="text-align:right">날짜</span>
+  </div>
+
+  {% for a in articles %}
+  <div class="article-item" style="animation-delay: {{ loop.index0 * 0.03 }}s">
+    <div><span class="source-badge {{ a.source }}">{{ a.source }}</span></div>
+    <div class="article-title">
+      <a href="{{ a.url }}" target="_blank" rel="noopener">{{ a.title }}</a>
+    </div>
+    <div class="article-date">{{ a.date }}</div>
+  </div>
+  {% endfor %}
+
+  {% else %}
+  <div class="empty-state">
+    <div style="font-size:2rem">📭</div>
+    <p>{% if keyword %}'{{ keyword }}'에 대한 결과가 없습니다.{% else %}아직 수집된 데이터가 없습니다. 즉시 수집 버튼을 눌러보세요.{% endif %}</p>
+  </div>
+  {% endif %}
+</main>
+
+<div id="toast">✓ 수집 완료!</div>
+
+<script>
+async function manualCollect() {
+  const btn = document.querySelector('.collect-btn');
+  btn.textContent = '⟳ 수집 중...';
+  btn.disabled = true;
+  try {
+    const res = await fetch('/api/collect', { method: 'POST' });
+    const data = await res.json();
+    const toast = document.getElementById('toast');
+    toast.style.display = 'block';
+    setTimeout(() => { toast.style.display = 'none'; location.reload(); }, 1500);
+  } catch(e) {
+    alert('오류가 발생했습니다.');
+  } finally {
+    btn.textContent = '⟳ 즉시 수집';
+    btn.disabled = false;
+  }
+}
+</script>
+
+</body>
+</html>
