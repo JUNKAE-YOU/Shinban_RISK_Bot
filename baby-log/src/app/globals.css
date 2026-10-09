@@ -1,0 +1,89 @@
+@import "tailwindcss";
+
+:root {
+  --background: #fdf8f3;
+  --surface: #ffffff;
+  --surface-2: #f6efe7;
+  --border: #eadfd3;
+  --foreground: #2b2420;
+  --muted: #7a6d63;
+  --primary: #e8795a;
+  --primary-strong: #d65f3f;
+  --primary-soft: #fde5dc;
+  --accent: #4f8f86;
+  --accent-soft: #dcefeb;
+  --danger: #c2413a;
+  --chart-1: #2a78d6;
+  --chart-grid: #eadfd3;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #191614;
+    --surface: #24201d;
+    --surface-2: #2e2925;
+    --border: #3b3430;
+    --foreground: #f3ece6;
+    --muted: #b3a69b;
+    --primary: #f08b6d;
+    --primary-strong: #f6a088;
+    --primary-soft: #4a2c22;
+    --accent: #7cc0b5;
+    --accent-soft: #1f3a36;
+    --danger: #ef7a72;
+    --chart-1: #3987e5;
+    --chart-grid: #3b3430;
+  }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-line: var(--border);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-primary: var(--primary);
+  --color-primary-strong: var(--primary-strong);
+  --color-primary-soft: var(--primary-soft);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-danger: var(--danger);
+  --font-sans: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic",
+    system-ui, -apple-system, sans-serif;
+}
+
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+/* 큰 터치 버튼 공통 스타일 */
+@utility btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 1rem;
+  font-weight: 700;
+  transition: transform 120ms ease, background-color 120ms ease, opacity 120ms ease;
+  user-select: none;
+  &:active {
+    transform: scale(0.97);
+  }
+  &:disabled {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+}
+
+@utility card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 1.25rem;
+}
